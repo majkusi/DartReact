@@ -4,7 +4,7 @@ function NavBar() {
   return (
     <>
       <nav className="navbar navbar-expand-lg navbar-light custom-navbar">
-        <a className="navbar-brand space" href="#">
+        <a className="navbar-brand space" href="/">
           Darts Web
         </a>
         <button

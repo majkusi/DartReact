@@ -1,10 +1,8 @@
-import ScoreBoard from "./ScoreBoard/ScoreBoard";
-import PlayerCard from "./PlayerCard/PlayerCard";
+import CreateGame from "./CreateGame/CreateGame";
 function GameView() {
   return (
     <>
-      <PlayerCard />
-      <ScoreBoard />;
+      <CreateGame />
     </>
   );
 }
