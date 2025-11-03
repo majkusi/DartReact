@@ -1,0 +1,37 @@
+[
+  {
+    "id": 1,
+    "feedTitle": "Rising Star Dominates the American Darts Open",
+    "feedContent": "21-year-old Michael Turner stunned fans after taking home the title at the 2025 American Darts Open in Las Vegas. His precision and composure under pressure marked him as one of the sport’s most promising new talents.",
+    "feedAuthor": "Jessica Monroe",
+    "feedDate": "2025-10-15T18:30:00Z"
+  },
+  {
+    "id": 2,
+    "feedTitle": "USA Darts Federation Announces New Regional League System",
+    "feedContent": "The USA Darts Federation has unveiled a new regional league system aimed at promoting grassroots participation across the country. Players will now be able to qualify for national tournaments through local circuits.",
+    "feedAuthor": "David Ross",
+    "feedDate": "2025-09-28T14:00:00Z"
+  },
+  {
+    "id": 3,
+    "feedTitle": "American Darts Championship Returns to New York City",
+    "feedContent": "After a two-year hiatus, the American Darts Championship is making its return to New York City this November. Organizers promise an expanded fan zone and enhanced live coverage for online viewers.",
+    "feedAuthor": "Laura Mitchell",
+    "feedDate": "2025-08-12T09:45:00Z"
+  },
+  {
+    "id": 4,
+    "feedTitle": "Top U.S. Players Gear Up for World Darts Masters",
+    "feedContent": "Four American players have secured their spots in the 2025 World Darts Masters in London. Team captain Chris Dalton expressed confidence, saying the team is 'ready to challenge the best on the global stage.'",
+    "feedAuthor": "Ethan Brooks",
+    "feedDate": "2025-10-03T22:10:00Z"
+  },
+  {
+    "id": 5,
+    "feedTitle": "New Training Academy Boosts Darts Talent in the Midwest",
+    "feedContent": "The Midwest Darts Academy opened its doors this month, offering coaching and analytics-driven training for young players. The academy aims to elevate U.S. performance in upcoming international events.",
+    "feedAuthor": "Samantha Lee",
+    "feedDate": "2025-07-21T11:15:00Z"
+  }
+]

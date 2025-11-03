@@ -1,9 +1,4 @@
-import CreateGame from "./CreateGame/CreateGame";
 function GameView() {
-  return (
-    <>
-      <CreateGame />
-    </>
-  );
+  return <></>;
 }
 export default GameView;
