@@ -1,4 +1,3 @@
-import React from "react";
 import X01Config from "../components/GameView/X01Config";
 const CreateX01GamePage = () => {
   return (
