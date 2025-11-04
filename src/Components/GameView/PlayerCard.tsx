@@ -29,7 +29,7 @@ const PlayerCard = ({
       className={`flex flex-col justify-between items-center text-center rounded-2xl p-4 m-3 w-48 transition-all duration-300
       ${
         isPlayerTurn
-          ? "bg-gradient-to-b from-blue-800 to-blue-600 border-blue-400 shadow-blue-500/40 scale-105"
+          ? "bg-linear-to-b from-blue-800 to-blue-600 border-blue-400 shadow-blue-500/40 scale-105"
           : "bg-gray-800 border-gray-600"
       }
       border-2 shadow-lg`}
