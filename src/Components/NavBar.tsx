@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 
 function NavBar() {
   return (
-    <nav className="bg-gradient-to-r from-gray-800 via-gray-900 to-gray-800 border-b border-blue-500 shadow-md">
+    <nav className="bg-linear-to-r from-gray-800 via-gray-900 to-gray-800 border-b border-blue-500 shadow-md">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Logo Section */}
