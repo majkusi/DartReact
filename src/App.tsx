@@ -9,6 +9,7 @@ import MainLayout from "./layouts/MainLayout";
 import HomePage from "./pages/HomePage";
 import CreateGamePage from "./pages/CreateGamePage";
 import CreateX01GamePage from "./pages/CreateX01GamePage";
+import GameViewPage from "./pages/GameViewPage";
 /// rafce
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -16,6 +17,7 @@ const router = createBrowserRouter(
       <Route index element={<HomePage />} />
       <Route path="/createGame" element={<CreateGamePage />} />
       <Route path="/createGame/X01" element={<CreateX01GamePage />} />
+      <Route path="/game/" element={<GameViewPage />} />
       <Route path="*" element={<NotFoundPage />} />
     </Route>
   )

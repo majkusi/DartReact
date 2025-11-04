@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router";
 const X01Config = () => {
   const [doubleBull, setDoubleBull] = useState(false);
   function collectData(event: React.FormEvent<HTMLFormElement>) {
@@ -101,19 +102,21 @@ const X01Config = () => {
               onChange={(e) => setDoubleBull(e.target.checked)}
               className="sr-only peer"
             />
-            <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
           </label>
         </div>
 
         <hr className="w-full border-gray-600" />
 
         {/* Submit button */}
-        <button
-          type="submit"
-          className="rounded-xl shadow-xl bg-gray-900 w-60 h-16 text-white border-2 border-blue-400 hover:bg-blue-600 transition"
-        >
-          Start Match
-        </button>
+        <Link to="/game">
+          <button
+            type="submit"
+            className="rounded-xl shadow-xl bg-gray-900 w-60 h-16 text-white border-2 border-blue-400 hover:bg-blue-600 transition"
+          >
+            Start Match
+          </button>
+        </Link>
       </form>
     </div>
   );
