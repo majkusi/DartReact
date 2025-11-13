@@ -1,58 +1,80 @@
 import React, { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-
-interface LoginResponse {
-  token: string;
+interface RegistryResponse {
+  statusCode: string;
 }
 
-interface LoginCredentials {
+interface RegistryCredentials {
   email: string;
+  username: string;
   password: string;
 }
 
-const loginUser = async (
-  credentials: LoginCredentials
-): Promise<LoginResponse> => {
-  const response = await fetch("https://localhost:5001/api/Users/Login", {
+const registerUser = async (credentials: RegistryCredentials) => {
+  const response = await fetch("https://localhost:5001/api/Users/Register", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(credentials),
   });
-
+  console.log(response);
   if (!response.ok) {
-    throw new Error("Invalid username or password");
+    throw new Error("Invalid credentials, try again");
   }
-
-  return response.json();
+  const responseText = await response.text();
+  if (!responseText || responseText.trim().length === 0) {
+    // Return a default successful response if the body is empty
+    return { statusCode: "200" };
+  }
+  try {
+    // Try parsing the text as JSON
+    return JSON.parse(responseText) as RegistryResponse;
+  } catch (e) {
+    // If parsing fails, throw an error
+    throw new Error("Received invalid JSON from server" + e);
+  }
 };
 
-const LoginForm: React.FC = () => {
+const RegistryComponent: React.FC = () => {
   const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  const mutation = useMutation<LoginResponse, Error, LoginCredentials>({
-    mutationFn: loginUser,
+  const mutation = useMutation<RegistryResponse, Error, RegistryCredentials>({
+    mutationFn: registerUser,
     onSuccess: (data) => {
-      localStorage.setItem("token", data.token);
-      alert("✅ Logged in successfully!");
+      alert("Register completed succesfuly: " + data);
     },
     onError: (error) => {
-      alert(error.message);
+      alert("THe error is : " + error.message);
     },
   });
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    mutation.mutate({ email, password });
+    mutation.mutate({ email, username, password });
   };
-
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
       <form
         onSubmit={handleSubmit}
         className="bg-white p-6 rounded-2xl shadow-md w-full max-w-sm"
       >
-        <h2 className="text-2xl font-bold mb-5 text-center">Login</h2>
+        <h2 className="text-2xl font-bold mb-5 text-center">Register</h2>
+        <div className="mb-4">
+          <label
+            htmlFor="email"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Email
+          </label>
+          <input
+            id="email"
+            type="text"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full border border-gray-300 p-2 rounded-lg focus:outline-none focus:ring focus:ring-blue-200"
+            required
+          />
+        </div>
 
         <div className="mb-4">
           <label
@@ -64,8 +86,8 @@ const LoginForm: React.FC = () => {
           <input
             id="username"
             type="text"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             className="w-full border border-gray-300 p-2 rounded-lg focus:outline-none focus:ring focus:ring-blue-200"
             required
           />
@@ -104,4 +126,4 @@ const LoginForm: React.FC = () => {
   );
 };
 
-export default LoginForm;
+export default RegistryComponent;
