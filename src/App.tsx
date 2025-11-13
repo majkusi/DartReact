@@ -10,6 +10,7 @@ import HomePage from "./pages/HomePage";
 import CreateGamePage from "./pages/CreateGamePage";
 import CreateX01GamePage from "./pages/CreateX01GamePage";
 import GameViewPage from "./pages/GameViewPage";
+
 /// rafce
 const router = createBrowserRouter(
   createRoutesFromElements(

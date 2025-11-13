@@ -1,8 +1,10 @@
 import FeedComponent from "../components/FeedComponent";
 import feedExample from "../../feedExample.json";
+import LoginForm from "../components/LoginComponent";
 const HomePage = () => {
   return (
     <div className="flex flex-col justify-center items-center bg-gray-800">
+      <LoginForm />
       {feedExample.map((feed) => (
         <FeedComponent
           key={feed.id}
