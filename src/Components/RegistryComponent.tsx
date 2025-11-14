@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
+
 interface RegistryResponse {
   statusCode: string;
 }
@@ -16,21 +17,18 @@ const registerUser = async (credentials: RegistryCredentials) => {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(credentials),
   });
-  console.log(response);
+
   if (!response.ok) {
     throw new Error("Invalid credentials, try again");
   }
+
   const responseText = await response.text();
-  if (!responseText || responseText.trim().length === 0) {
-    // Return a default successful response if the body is empty
-    return { statusCode: "200" };
-  }
+  if (!responseText.trim()) return { statusCode: "200" };
+
   try {
-    // Try parsing the text as JSON
     return JSON.parse(responseText) as RegistryResponse;
   } catch (e) {
-    // If parsing fails, throw an error
-    throw new Error("Received invalid JSON from server" + e);
+    throw new Error("Received invalid JSON from server " + e);
   }
 };
 
@@ -42,84 +40,73 @@ const RegistryComponent: React.FC = () => {
   const mutation = useMutation<RegistryResponse, Error, RegistryCredentials>({
     mutationFn: registerUser,
     onSuccess: (data) => {
-      alert("Register completed succesfuly: " + data);
+      alert("Register completed successfully: " + data.statusCode);
     },
     onError: (error) => {
-      alert("THe error is : " + error.message);
+      alert("Error: " + error.message);
     },
   });
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     mutation.mutate({ email, username, password });
   };
+
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+    <div className="flex items-center justify-center min-h-screen text-white">
       <form
         onSubmit={handleSubmit}
-        className="bg-white p-6 rounded-2xl shadow-md w-full max-w-sm"
+        className="flex flex-col items-center justify-center space-y-4 bg-gray-800 p-8 rounded-2xl shadow-2xl w-96"
       >
-        <h2 className="text-2xl font-bold mb-5 text-center">Register</h2>
-        <div className="mb-4">
-          <label
-            htmlFor="email"
-            className="block text-sm font-medium text-gray-700 mb-1"
-          >
-            Email
-          </label>
+        <h1 className="text-2xl font-bold mb-2">Register</h1>
+
+        {/* Email */}
+        <div className="flex flex-col w-full">
+          <label className="mb-1">Email</label>
           <input
-            id="email"
-            type="text"
+            type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full border border-gray-300 p-2 rounded-lg focus:outline-none focus:ring focus:ring-blue-200"
+            className="bg-gray-500 border-2 border-white p-2 rounded-md text-white"
             required
           />
         </div>
 
-        <div className="mb-4">
-          <label
-            htmlFor="username"
-            className="block text-sm font-medium text-gray-700 mb-1"
-          >
-            Username
-          </label>
+        {/* Username */}
+        <div className="flex flex-col w-full">
+          <label className="mb-1">Username</label>
           <input
-            id="username"
             type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            className="w-full border border-gray-300 p-2 rounded-lg focus:outline-none focus:ring focus:ring-blue-200"
+            className="bg-gray-500 border-2 border-white p-2 rounded-md text-white"
             required
           />
         </div>
 
-        <div className="mb-5">
-          <label
-            htmlFor="password"
-            className="block text-sm font-medium text-gray-700 mb-1"
-          >
-            Password
-          </label>
+        {/* Password */}
+        <div className="flex flex-col w-full">
+          <label className="mb-1">Password</label>
           <input
-            id="password"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full border border-gray-300 p-2 rounded-lg focus:outline-none focus:ring focus:ring-blue-200"
+            className="bg-gray-500 border-2 border-white p-2 rounded-md text-white"
             required
           />
         </div>
 
+        {/* Submit */}
         <button
           type="submit"
           disabled={mutation.isPending}
-          className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
+          className="rounded-xl shadow-xl bg-gray-900 w-60 h-14 text-white border-2 border-blue-400 hover:bg-blue-600 transition disabled:opacity-50"
         >
-          {mutation.isPending ? "Logging in..." : "Login"}
+          {mutation.isPending ? "Registering..." : "Register"}
         </button>
 
         {mutation.isError && (
-          <p className="text-red-500 text-sm mt-3">{mutation.error.message}</p>
+          <p className="text-red-400 text-sm">{mutation.error.message}</p>
         )}
       </form>
     </div>
