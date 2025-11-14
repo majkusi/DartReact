@@ -21,6 +21,7 @@ function NavBar() {
               { to: "/", label: "Home" },
               { to: "/createGame", label: "Play" },
               { to: "/about", label: "About" },
+              { to: "/login", label: "Sign up" },
             ].map((link) => (
               <Link
                 key={link.to}

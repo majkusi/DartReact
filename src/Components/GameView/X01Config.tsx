@@ -1,5 +1,14 @@
 import { useState } from "react";
 import { Link } from "react-router";
+
+interface X01Response {
+  GameId: number;
+}
+interface X01Request {
+  gameType: string;
+  X01TypeEnum: string;
+}
+
 const X01Config = () => {
   const [doubleBull, setDoubleBull] = useState(false);
   function collectData(event: React.FormEvent<HTMLFormElement>) {

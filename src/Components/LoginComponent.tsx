@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
+import { Link } from "react-router";
 
 interface LoginResponse {
   token: string;
@@ -90,6 +91,10 @@ const LoginForm: React.FC = () => {
         {mutation.isError && (
           <p className="text-red-400 text-sm">{mutation.error.message}</p>
         )}
+
+        <Link to="/register" className="m-4 text-white">
+          Don't have an account? Register !
+        </Link>
       </form>
     </div>
   );
