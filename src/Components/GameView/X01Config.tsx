@@ -1,14 +1,15 @@
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
-import { Link } from "react-router";
+import { useNavigate } from "react-router";
 
 interface MatchResponse {
   GameId: string;
 }
 interface MatchRequest {
-  gameType: string;
-  X01TypeEnum: string;
-  playersName: string[];
+  GameType: number;
+  X01TypeEnum: number;
+  PlayersName: string[];
+  TeamsMode: boolean;
 }
 
 const createMatch = async (request: MatchRequest): Promise<MatchResponse> => {
@@ -27,27 +28,36 @@ const createMatch = async (request: MatchRequest): Promise<MatchResponse> => {
 const X01Config = () => {
   const [doubleBull, setDoubleBull] = useState(false);
   const [numPlayers, setNumPlayers] = useState(1);
-
-  const gameType = "X01";
+  const [teamsMode, setTeamsMode] = useState(false);
   const [X01TypeEnum, setX01TypeEnum] = useState("");
-  const [playersName, setPlayersName] = useState(Array(0));
+
+  const navigate = useNavigate();
 
   const mutation = useMutation<MatchResponse, Error, MatchRequest>({
     mutationFn: createMatch,
     onSuccess: (data) => {
       localStorage.setItem("gameId", data.GameId);
-      console.log(data);
-    },
-    onError: (data) => {
-      alert(data);
+      navigate("/game"); // <-- redirect AFTER receiving GameId
     },
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const listOfPlayers = [...Array(numPlayers)];
-    setPlayersName(listOfPlayers);
-    mutation.mutate({ gameType, X01TypeEnum, playersName });
+
+    const formData = new FormData(e.target as HTMLFormElement);
+    const listOfPlayers: string[] = [];
+
+    for (let i = 1; i <= numPlayers; i++) {
+      const name = formData.get(`player_${i}`) as string;
+      listOfPlayers.push(name);
+    }
+
+    mutation.mutate({
+      GameType: 1,
+      X01TypeEnum: Number(X01TypeEnum),
+      PlayersName: listOfPlayers,
+      TeamsMode: teamsMode,
+    });
   };
 
   return (
@@ -94,10 +104,8 @@ const X01Config = () => {
           {/* Hidden input so the form still submits the value */}
           <input type="hidden" name="numOfPlayers" value={numPlayers} />
         </div>
-
         {/* Hidden input so the form still sends numOfPlayers */}
         <input type="hidden" name="numOfPlayers" value={numPlayers} />
-
         {/* player name inputs */}
         {numPlayers > 1 && (
           <div className="flex flex-col items-center space-y-2 p-2">
@@ -113,9 +121,7 @@ const X01Config = () => {
             ))}
           </div>
         )}
-
         <hr className="w-full border-gray-600" />
-
         {/* Radio buttons for in/out */}
         <div className="flex flex-col items-center">
           <p className="mb-2">Choose type of in/out</p>
@@ -126,7 +132,7 @@ const X01Config = () => {
                   type="radio"
                   name="gameOption"
                   id="doubleInOption"
-                  value="DIDO"
+                  value="0"
                   onChange={(e) => setX01TypeEnum(e.target.value)}
                 />
                 <span className="ml-1">DI/DO</span>
@@ -136,7 +142,7 @@ const X01Config = () => {
                   type="radio"
                   name="gameOption"
                   id="openInOption"
-                  value="DISO"
+                  value="1"
                   onChange={(e) => setX01TypeEnum(e.target.value)}
                 />
                 <span className="ml-1">DI/SO</span>
@@ -148,7 +154,7 @@ const X01Config = () => {
                   type="radio"
                   name="gameOption"
                   id="doubleOutOption"
-                  value="SIDO"
+                  value="2"
                   onChange={(e) => setX01TypeEnum(e.target.value)}
                 />
                 <span className="ml-1">SI/DO</span>
@@ -158,7 +164,7 @@ const X01Config = () => {
                   type="radio"
                   name="gameOption"
                   id="openOutOption"
-                  value="SISO"
+                  value="3"
                   onChange={(e) => setX01TypeEnum(e.target.value)}
                 />
                 <span className="ml-1">SI/SO</span>
@@ -166,9 +172,7 @@ const X01Config = () => {
             </div>
           </div>
         </div>
-
         <hr className="w-full border-gray-600" />
-
         {/* Double Bull toggle */}
         <div className="flex flex-col items-center">
           <p className="mb-2">Double Bull</p>
@@ -183,24 +187,24 @@ const X01Config = () => {
             <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
           </label>
         </div>
-
         <hr className="w-full border-gray-600" />
-
+        {/* Teams Mode toggle */}
+        <div className="flex flex-col items-center">
+          <p className="mb-2">Do you want to play Team mode?</p>
+          <label className="inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              name="teamsModeToggle"
+              checked={teamsMode}
+              onChange={(e) => setTeamsMode(e.target.checked)}
+              className="sr-only peer"
+            />
+            <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+          </label>
+        </div>
+        <hr className="w-full border-gray-600" />
         {/* Submit button */}
-        {/* <Link to="/game">
-          <button
-            type="submit"
-            className="rounded-xl shadow-xl bg-gray-900 w-60 h-16 text-white border-2 border-blue-400 hover:bg-blue-600 transition"
-          >
-            Start Match
-          </button>
-        </Link> */}
-        <button
-          type="submit"
-          className="rounded-xl shadow-xl bg-gray-900 w-60 h-16 text-white border-2 border-blue-400 hover:bg-blue-600 transition"
-        >
-          Start Match
-        </button>
+        <button type="submit">Start Match</button>
       </form>
     </div>
   );
