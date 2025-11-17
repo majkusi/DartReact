@@ -126,7 +126,7 @@ const X01Config = () => {
                   type="radio"
                   name="gameOption"
                   id="doubleInOption"
-                  value="doubleIn"
+                  value="DIDO"
                   onChange={(e) => setX01TypeEnum(e.target.value)}
                 />
                 <span className="ml-1">DI/DO</span>
@@ -136,7 +136,7 @@ const X01Config = () => {
                   type="radio"
                   name="gameOption"
                   id="openInOption"
-                  value="openIn"
+                  value="DISO"
                   onChange={(e) => setX01TypeEnum(e.target.value)}
                 />
                 <span className="ml-1">DI/SO</span>
@@ -148,7 +148,7 @@ const X01Config = () => {
                   type="radio"
                   name="gameOption"
                   id="doubleOutOption"
-                  value="doubleOut"
+                  value="SIDO"
                   onChange={(e) => setX01TypeEnum(e.target.value)}
                 />
                 <span className="ml-1">SI/DO</span>
@@ -158,7 +158,7 @@ const X01Config = () => {
                   type="radio"
                   name="gameOption"
                   id="openOutOption"
-                  value="singleOut"
+                  value="SISO"
                   onChange={(e) => setX01TypeEnum(e.target.value)}
                 />
                 <span className="ml-1">SI/SO</span>
@@ -187,14 +187,20 @@ const X01Config = () => {
         <hr className="w-full border-gray-600" />
 
         {/* Submit button */}
-        <Link to="/game">
+        {/* <Link to="/game">
           <button
             type="submit"
             className="rounded-xl shadow-xl bg-gray-900 w-60 h-16 text-white border-2 border-blue-400 hover:bg-blue-600 transition"
           >
             Start Match
           </button>
-        </Link>
+        </Link> */}
+        <button
+          type="submit"
+          className="rounded-xl shadow-xl bg-gray-900 w-60 h-16 text-white border-2 border-blue-400 hover:bg-blue-600 transition"
+        >
+          Start Match
+        </button>
       </form>
     </div>
   );
