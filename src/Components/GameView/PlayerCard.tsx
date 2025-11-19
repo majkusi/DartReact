@@ -5,6 +5,16 @@ interface PropsTypes {
   isPlayerTurn: boolean;
 }
 
+interface MatchRequest {
+  GameId: number;
+}
+
+interface MatchResponse {
+  PlayersName: string[];
+  X01TypeEnum: number;
+  TeamNumber: number;
+}
+
 function PlayerTurn({ isPlayerTurn }: Pick<PropsTypes, "isPlayerTurn">) {
   return (
     <span

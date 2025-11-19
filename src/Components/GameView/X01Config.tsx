@@ -37,7 +37,7 @@ const X01Config = () => {
     mutationFn: createMatch,
     onSuccess: (data) => {
       localStorage.setItem("gameId", data.GameId);
-      navigate("/game"); // <-- redirect AFTER receiving GameId
+      navigate("/game");
     },
   });
 
