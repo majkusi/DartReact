@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 
 interface MatchResponse {
-  GameId: string;
+  gameId: string;
 }
 interface MatchRequest {
   GameType: number;
@@ -36,7 +36,7 @@ const X01Config = () => {
   const mutation = useMutation<MatchResponse, Error, MatchRequest>({
     mutationFn: createMatch,
     onSuccess: (data) => {
-      localStorage.setItem("gameId", data.GameId);
+      localStorage.setItem("GameId", JSON.parse(data.toString()));
       navigate("/game");
     },
   });
