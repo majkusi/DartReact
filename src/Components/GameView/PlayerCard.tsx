@@ -106,18 +106,12 @@ const Card: React.FC<PropsTypes> = ({
       }
       border-2 shadow-lg`}
     >
-      <h1 className="text-lg font-bold tracking-wide flex items-center justify-center">
+      <h1 className="text-lg text-white font-bold tracking-wide flex items-center justify-center">
         {playerName}
         <PlayerTurn isPlayerTurn={isPlayerTurn} />
       </h1>
 
-      <h2
-        className={`text-3xl font-extrabold mt-3 ${
-          isPlayerTurn ? "text-white" : "text-gray-300"
-        }`}
-      >
-        {playerScore}
-      </h2>
+      <h2 className="text-3xl font-extrabold mt-3 text-white">{playerScore}</h2>
     </div>
   );
 };
