@@ -10,6 +10,7 @@ interface MatchRequest {
   X01TypeEnum: number;
   PlayersName: string[];
   TeamsMode: boolean;
+  Score: number;
 }
 
 const createMatch = async (request: MatchRequest): Promise<MatchResponse> => {
@@ -57,6 +58,7 @@ const X01Config = () => {
       X01TypeEnum: Number(X01TypeEnum),
       PlayersName: listOfPlayers,
       TeamsMode: teamsMode,
+      Score: 501,
     });
   };
 

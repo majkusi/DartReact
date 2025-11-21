@@ -24,17 +24,14 @@ export interface TeamData {
   players: PlayerData[];
 }
 
-// API response could be: { teams: [...] } or directly array of teams
 export type TeamResponse = TeamData[] | { teams: TeamData[] };
 
-// ---------- FETCH FUNCTION ----------
 const fetchTeams = async (gameId: string): Promise<TeamResponse> => {
   const res = await fetch(`https://localhost:5001/api/Team/${gameId}`);
   if (!res.ok) throw new Error("Failed to fetch teams");
   return res.json();
 };
 
-// ---------- MAIN COMPONENT ----------
 const PlayerCard: React.FC = () => {
   const gameId = localStorage.getItem("GameId") || "";
   console.log(gameId);
@@ -79,7 +76,7 @@ const PlayerCard: React.FC = () => {
 };
 
 export default PlayerCard;
-// ---------- SMALL COMPONENTS ----------
+
 function PlayerTurn({ isPlayerTurn }: Pick<PropsTypes, "isPlayerTurn">) {
   return (
     <span
