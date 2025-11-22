@@ -34,7 +34,6 @@ const fetchTeams = async (gameId: string): Promise<TeamResponse> => {
 
 const PlayerCard: React.FC = () => {
   const gameId = localStorage.getItem("GameId") || "";
-  console.log(gameId);
   const { data, isLoading, error } = useQuery<TeamResponse>({
     queryKey: ["teams", gameId],
     queryFn: () => fetchTeams(gameId),
