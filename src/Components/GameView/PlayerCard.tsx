@@ -49,10 +49,18 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
     enabled: !!gameId,
   });
 
-  const teams: TeamData[] = useMemo(
-    () => (Array.isArray(data) ? data : data?.teams ?? []),
-    [data]
-  );
+  const teams: TeamData[] = useMemo(() => {
+    const raw = Array.isArray(data) ? data : data?.teams ?? [];
+    // Normalize ordering: sort teams by teamNumber so turn order alternates predictably
+    // and sort players within a team by id to keep stable player ordering.
+    return raw
+      .slice()
+      .sort((a, b) => a.teamNumber - b.teamNumber)
+      .map((t) => ({
+        ...t,
+        players: t.players.slice().sort((p1, p2) => p1.id - p2.id),
+      }));
+  }, [data]);
   const isTeamMode = teams.some((t) => t.players.length > 1);
 
   // Build turn order: iterate player index (0..maxPlayers-1) and push each team's playerUsername at that index
