@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-
+import signalR from "@microsoft/signalr";
 // ---------- TYPES ----------
 interface PropsTypes {
   playerName: string;
@@ -23,6 +23,11 @@ export interface TeamData {
   gameId: number;
   score: number;
   players: PlayerData[];
+}
+
+export interface GameStateData {
+  matchId: number;
+  currentPlayer: string;
 }
 
 export type TeamResponse = TeamData[] | { teams: TeamData[] };
@@ -51,8 +56,6 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
 
   const teams: TeamData[] = useMemo(() => {
     const raw = Array.isArray(data) ? data : data?.teams ?? [];
-    // Normalize ordering: sort teams by teamNumber so turn order alternates predictably
-    // and sort players within a team by id to keep stable player ordering.
     return raw
       .slice()
       .sort((a, b) => a.teamNumber - b.teamNumber)
@@ -63,7 +66,6 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
   }, [data]);
   const isTeamMode = teams.some((t) => t.players.length > 1);
 
-  // Build turn order: iterate player index (0..maxPlayers-1) and push each team's playerUsername at that index
   const computeTurnOrder = (teamsArr: TeamData[]) => {
     const maxPlayers = teamsArr.reduce(
       (max, t) => Math.max(max, t.players.length),
@@ -79,8 +81,16 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
     return order;
   };
 
+  const setupSignalRConnection = () => {
+    const connection = new signalR.HubConnectionBuilder()
+      .withUrl(`https://localhost:5001/api/${gameId}/matchState`)
+      .withAutomaticReconnect()
+      .build();
+
+    connection.on("SendGameStateUpdate", (state) => {});
+  };
+
   useEffect(() => {
-    // When teams load, ensure a TurnOrder exists in localStorage and reset if teams changed
     const newOrder = computeTurnOrder(teams);
     try {
       const stored = localStorage.getItem("TurnOrder");
@@ -97,12 +107,10 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
         }
       }
     } catch (e) {
-      // ignore localStorage parsing errors
       console.error("TurnOrder sync failed", e);
     }
   }, [teams, onSelectPlayer]);
 
-  // Determine the current player username from stored TurnOrder/TurnIndex
   const getCurrentPlayerUsername = (): string | undefined => {
     try {
       const order = JSON.parse(
