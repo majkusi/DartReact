@@ -1,23 +1,15 @@
-import React, { useEffect, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
-import signalR from "@microsoft/signalr";
-// ---------- TYPES ----------
-interface PropsTypes {
-  playerName: string;
-  playerScore: number;
-  isPlayerTurn: boolean;
-  isSelected?: boolean;
-  onSelect?: () => void;
-}
 
-export interface PlayerData {
+import React, { useEffect, useRef, useState } from "react";
+import * as signalR from "@microsoft/signalr";
+
+interface PlayerData {
   id: number;
   teamId: number;
   playerUsername: string;
   individualScore: number;
 }
 
-export interface TeamData {
+interface TeamData {
   id: number;
   teamNumber: number;
   gameId: number;
@@ -25,137 +17,74 @@ export interface TeamData {
   players: PlayerData[];
 }
 
-export interface GameStateData {
-  matchId: number;
+interface ServerGameState {
+  gameId: number;
+  turnOrder: string[];
   currentPlayer: string;
+  teams: TeamData[];
 }
 
-export type TeamResponse = TeamData[] | { teams: TeamData[] };
 
-const fetchTeams = async (gameId: string): Promise<TeamResponse> => {
-  const res = await fetch(`https://localhost:5001/api/Team/${gameId}`);
-  if (!res.ok) throw new Error("Failed to fetch teams");
-  return res.json();
-};
 
-interface PlayerCardProps {
-  selectedPlayerId?: string;
-  onSelectPlayer?: (username: string) => void;
-}
-
-const PlayerCard: React.FC<PlayerCardProps> = ({
-  selectedPlayerId,
-  onSelectPlayer,
-}) => {
+const PlayerCard: React.FC = () => {
   const gameId = localStorage.getItem("GameId") || "";
-  const { data, isLoading, error } = useQuery<TeamResponse>({
-    queryKey: ["teams", gameId],
-    queryFn: () => fetchTeams(gameId),
-    enabled: !!gameId,
-  });
+  const connectionRef = useRef<signalR.HubConnection | null>(null);
+  const [gameState, setGameState] = useState<ServerGameState | null>(null);
 
-  const teams: TeamData[] = useMemo(() => {
-    const raw = Array.isArray(data) ? data : data?.teams ?? [];
-    return raw
-      .slice()
-      .sort((a, b) => a.teamNumber - b.teamNumber)
-      .map((t) => ({
-        ...t,
-        players: t.players.slice().sort((p1, p2) => p1.id - p2.id),
-      }));
-  }, [data]);
-  const isTeamMode = teams.some((t) => t.players.length > 1);
 
-  const computeTurnOrder = (teamsArr: TeamData[]) => {
-    const maxPlayers = teamsArr.reduce(
-      (max, t) => Math.max(max, t.players.length),
-      0
-    );
-    const order: string[] = [];
-    for (let i = 0; i < maxPlayers; i++) {
-      for (const team of teamsArr) {
-        const p = team.players[i];
-        if (p) order.push(p.playerUsername);
-      }
-    }
-    return order;
-  };
+useEffect(() => {
+  if (!gameId) return;
 
-  const setupSignalRConnection = () => {
-    const connection = new signalR.HubConnectionBuilder()
-      .withUrl(`https://localhost:5001/api/${gameId}/matchState`)
-      .withAutomaticReconnect()
-      .build();
+  const connection = new signalR.HubConnectionBuilder()
+    .withUrl("https://localhost:5001/hubs/match")
+    .withAutomaticReconnect()
+    .build();
 
-    connection.on("SendGameStateUpdate", (state) => {});
-  };
+  connection.on("GameStateUpdated", (state) => setGameState(state));
 
-  useEffect(() => {
-    const newOrder = computeTurnOrder(teams);
+  const start = async () => {
     try {
-      const stored = localStorage.getItem("TurnOrder");
-      if (!stored || stored !== JSON.stringify(newOrder)) {
-        localStorage.setItem("TurnOrder", JSON.stringify(newOrder));
-        localStorage.setItem("TurnIndex", "0");
-        if (onSelectPlayer && newOrder.length) onSelectPlayer(newOrder[0]);
-      } else {
-        // ensure index is valid
-        const idx = parseInt(localStorage.getItem("TurnIndex") || "0", 10);
-        if (isNaN(idx) || idx >= newOrder.length) {
-          localStorage.setItem("TurnIndex", "0");
-          if (onSelectPlayer && newOrder.length) onSelectPlayer(newOrder[0]);
-        }
+      if (connection.state === signalR.HubConnectionState.Disconnected) {
+        await connection.start();
+        await connection.invoke("JoinGame", Number(gameId));
       }
-    } catch (e) {
-      console.error("TurnOrder sync failed", e);
-    }
-  }, [teams, onSelectPlayer]);
-
-  const getCurrentPlayerUsername = (): string | undefined => {
-    try {
-      const order = JSON.parse(
-        localStorage.getItem("TurnOrder") || "[]"
-      ) as string[];
-      const idx = parseInt(localStorage.getItem("TurnIndex") || "0", 10);
-      if (!Array.isArray(order) || order.length === 0) return undefined;
-      const safeIdx = isNaN(idx)
-        ? 0
-        : Math.max(0, Math.min(idx, order.length - 1));
-      return order[safeIdx];
-    } catch {
-      console.log("returned undefined in getCurrentPlayerUsername");
-      return undefined;
+    } catch (err) {
+      console.error("SignalR connection failed", err);
     }
   };
 
-  const currentPlayerUsername = getCurrentPlayerUsername();
+  start();
+  connectionRef.current = connection;
 
-  if (isLoading) return <div className="text-white">Loading...</div>;
-  if (error) return <div className="text-red-400">Error loading teams</div>;
+  return () => {
+    connection.stop();
+  };
+}, [gameId]);
+
+
+  if (!gameState) return <div className="text-white">Waiting for game state...</div>;
 
   return (
     <div className="flex gap-6 justify-center w-full">
-      {teams.map((team) => (
-        <div
-          key={team.id}
-          className="p-4 bg-gray-900 border border-gray-700 rounded-2xl shadow-lg"
-        >
+      {gameState.teams.map((team) => (
+        <div key={team.id} className="p-4 bg-gray-900 border border-gray-700 rounded-2xl shadow-lg">
           <h2 className="text-center text-xl font-bold mb-4 text-white">
             Team {team.teamNumber}
           </h2>
-
-          <div className={`flex ${isTeamMode ? "flex-row" : "flex-col"} gap-4`}>
+          <div className={`flex ${team.players.length > 1 ? "flex-row" : "flex-col"} gap-4`}>
             {team.players.map((player) => (
-              <Card
+              <div
                 key={player.id}
-                playerName={player.playerUsername}
-                playerScore={player.individualScore}
-                isPlayerTurn={player.playerUsername === currentPlayerUsername}
-                isSelected={selectedPlayerId === player.playerUsername}
-                onSelect={() =>
-                  onSelectPlayer && onSelectPlayer(player.playerUsername)
-                }
-              />
+                className={`cursor-pointer flex flex-col items-center text-center rounded-2xl p-4 m-3 w-48
+                ${player.playerUsername === gameState.currentPlayer
+                  ? "bg-blue-700 border-blue-400 scale-105"
+                  : "bg-gray-800 border-gray-600"} border-2 shadow-lg`}
+              >
+                <h1 className="text-lg text-white font-bold">
+                  {player.playerUsername} {player.playerUsername === gameState.currentPlayer ? "🟢" : "🔴"}
+                </h1>
+                <h2 className="text-3xl font-extrabold mt-3 text-white">{player.individualScore}</h2>
+              </div>
             ))}
           </div>
         </div>
@@ -165,43 +94,3 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
 };
 
 export default PlayerCard;
-
-function PlayerTurn({ isPlayerTurn }: Pick<PropsTypes, "isPlayerTurn">) {
-  return (
-    <span
-      className={`ml-2 text-lg ${
-        isPlayerTurn ? "text-green-400" : "text-red-500"
-      }`}
-    >
-      {isPlayerTurn ? "🟢" : "🔴"}
-    </span>
-  );
-}
-
-const Card: React.FC<PropsTypes> = ({
-  playerName,
-  playerScore,
-  isPlayerTurn,
-  isSelected,
-  onSelect,
-}) => {
-  return (
-    <div
-      onClick={onSelect}
-      className={`cursor-pointer flex flex-col justify-between items-center text-center rounded-2xl p-4 m-3 w-48 transition-all duration-300
-      ${
-        isPlayerTurn
-          ? "bg-linear-to-b from-blue-800 to-blue-600 border-blue-400 shadow-blue-500/40 scale-105"
-          : "bg-gray-800 border-gray-600"
-      }
-      border-2 shadow-lg ${isSelected ? "ring-2 ring-blue-400 scale-105" : ""}`}
-    >
-      <h1 className="text-lg text-white font-bold tracking-wide flex items-center justify-center">
-        {playerName}
-        <PlayerTurn isPlayerTurn={isPlayerTurn} />
-      </h1>
-
-      <h2 className="text-3xl font-extrabold mt-3 text-white">{playerScore}</h2>
-    </div>
-  );
-};
