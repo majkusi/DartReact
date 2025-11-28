@@ -1,5 +1,5 @@
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import * as signalR from "@microsoft/signalr";
 
 interface PlayerData {
@@ -24,43 +24,79 @@ interface ServerGameState {
   teams: TeamData[];
 }
 
+interface PlayerCardProps {
+  selectedPlayerUsername?: string;
+  onSelectPlayer: (username: string) => void;
+}
 
-
-const PlayerCard: React.FC = () => {
+const PlayerCard: React.FC<PlayerCardProps> = ({
+  selectedPlayerUsername,
+  onSelectPlayer,
+}) => {
   const gameId = localStorage.getItem("GameId") || "";
   const connectionRef = useRef<signalR.HubConnection | null>(null);
   const [gameState, setGameState] = useState<ServerGameState | null>(null);
 
-
-useEffect(() => {
-  if (!gameId) return;
-
-  const connection = new signalR.HubConnectionBuilder()
-    .withUrl("https://localhost:5001/hubs/match")
-    .withAutomaticReconnect()
-    .build();
-
-  connection.on("GameStateUpdated", (state) => setGameState(state));
-
-  const start = async () => {
-    try {
-      if (connection.state === signalR.HubConnectionState.Disconnected) {
-        await connection.start();
-        await connection.invoke("JoinGame", Number(gameId));
-      }
-    } catch (err) {
-      console.error("SignalR connection failed", err);
+  useEffect(() => {
+    if (!gameId) {
+      console.warn("⚠️ No GameId in localStorage");
+      return;
     }
-  };
 
-  start();
-  connectionRef.current = connection;
+    const connection = new signalR.HubConnectionBuilder()
+      .withUrl("https://localhost:5001/api/hubs/match", {
+        transport: signalR.HttpTransportType.WebSockets,
+        withCredentials: true,
+      })
+      .withAutomaticReconnect()
+      .configureLogging(signalR.LogLevel.Information)
+      .build();
 
-  return () => {
-    connection.stop();
-  };
-}, [gameId]);
+    // ✅ Register event handler for game state updates
+    connection.on("GameStateUpdated", (state: ServerGameState) => {
+      console.log("✅ Received GameStateUpdated:", state);
+      setGameState(state);
 
+      // ✅ Always sync current player to parent if changed
+      if (state.currentPlayer && state.currentPlayer !== selectedPlayerUsername) {
+        onSelectPlayer(state.currentPlayer);
+        localStorage.setItem("StartingPlayerUsername", state.currentPlayer);
+      }
+    });
+
+    // ✅ Handle reconnect and rejoin group
+    connection.onreconnected(() => {
+      console.log("🔄 SignalR reconnected, rejoining game group...");
+      connection.invoke("JoinGame", Number(gameId));
+    });
+
+    const start = async () => {
+      try {
+        if (connection.state === signalR.HubConnectionState.Disconnected) {
+          await connection.start();
+          console.log("✅ SignalR started. State:", connection.state);
+          console.log("📤 Invoking JoinGame with gameId:", Number(gameId));
+          await connection.invoke("JoinGame", Number(gameId));
+          console.log("✅ JoinGame invoked successfully");
+        }
+      } catch (err) {
+        console.error("❌ SignalR start/invoke failed:", err);
+      }
+    };
+
+    start();
+    connectionRef.current = connection;
+
+    return () => {
+      console.log("🔌 Stopping SignalR connection");
+      connection.stop();
+    };
+  }, [gameId, selectedPlayerUsername, onSelectPlayer]);
+
+  // Use selectedPlayerUsername first, fallback to server currentPlayer
+  const currentPlayer = useMemo(() => {
+    return selectedPlayerUsername ?? gameState?.currentPlayer ?? null;
+  }, [selectedPlayerUsername, gameState]);
 
   if (!gameState) return <div className="text-white">Waiting for game state...</div>;
 
@@ -75,13 +111,15 @@ useEffect(() => {
             {team.players.map((player) => (
               <div
                 key={player.id}
+                onClick={() => onSelectPlayer(player.playerUsername)}
                 className={`cursor-pointer flex flex-col items-center text-center rounded-2xl p-4 m-3 w-48
-                ${player.playerUsername === gameState.currentPlayer
+                ${player.playerUsername === currentPlayer
                   ? "bg-blue-700 border-blue-400 scale-105"
-                  : "bg-gray-800 border-gray-600"} border-2 shadow-lg`}
+                  : "bg-gray-800 border-gray-600"} border-2 shadow-lg
+                `}
               >
                 <h1 className="text-lg text-white font-bold">
-                  {player.playerUsername} {player.playerUsername === gameState.currentPlayer ? "🟢" : "🔴"}
+                  {player.playerUsername} {player.playerUsername === currentPlayer ? "🟢" : "🔴"}
                 </h1>
                 <h2 className="text-3xl font-extrabold mt-3 text-white">{player.individualScore}</h2>
               </div>

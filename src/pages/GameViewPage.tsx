@@ -1,20 +1,18 @@
 import { useState } from "react";
-import PlayerCard from "../components/GameView/PlayerCard";
-import ScoreBoard from "../components/GameView/ScoreBoard";
+import PlayerCard from "../Components/GameView/PlayerCard";
+import ScoreBoard from "../Components/GameView/ScoreBoard";
 
 const GameViewPage = () => {
-  const [selectedPlayerUsername, setSelectedPlayerUsername] = useState<
-    string | undefined
-  >(undefined);
+  const [selectedPlayerUsername, setSelectedPlayerUsername] = useState<string | undefined>(undefined);
 
   return (
     <div className="flex flex-col justify-center items-center bg-gray-800 h-svh">
       <PlayerCard
-        selectedPlayerId={selectedPlayerUsername}
+        selectedPlayerUsername={selectedPlayerUsername}
         onSelectPlayer={setSelectedPlayerUsername}
       />
       <ScoreBoard
-        selectedPlayerId={selectedPlayerUsername}
+        selectedPlayerUsername={selectedPlayerUsername}
         onSelectPlayer={setSelectedPlayerUsername}
       />
     </div>

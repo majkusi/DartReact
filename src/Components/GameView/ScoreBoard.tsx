@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
 interface ScoreBoardProps {
-  selectedPlayerId?: string;
+  selectedPlayerUsername?: string;
   onSelectPlayer?: (username: string) => void;
 }
 
@@ -14,7 +14,7 @@ interface CreateRoundRequest {
 }
 
 const ScoreBoard: React.FC<ScoreBoardProps> = ({
-  selectedPlayerId,
+  selectedPlayerUsername,
   onSelectPlayer,
 }) => {
   const [input, setInput] = useState<string>("");
@@ -29,65 +29,50 @@ const ScoreBoard: React.FC<ScoreBoardProps> = ({
 
   const handleRevert = () => setInput("");
 
-  const handleNext = async () => {
-    if (!selectedPlayerId) {
-      alert("Please select a player first");
-      return;
+
+const handleNext = async () => {
+  if (!selectedPlayerUsername) {
+    alert("Please select a player first");
+    return;
+  }
+
+  const points = parseInt(input, 10);
+  if (!points || points <= 0) {
+    alert("Enter a valid point value");
+    return;
+  }
+
+  const gameId = localStorage.getItem("GameId") || "";
+
+  try {
+    const payload: CreateRoundRequest = {
+      gameId: parseInt(gameId || "0", 10),
+      roundNumber: 0,
+      points: points,
+      playerUsername: selectedPlayerUsername,
+    };
+
+    const res = await fetch("https://localhost:5001/api/Round", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      console.error("CreateRound failed:", res.status, text);
+      throw new Error("Failed to create round on server");
     }
 
-    const points = parseInt(input, 10);
-    if (!points || points <= 0) {
-      alert("Enter a valid point value");
-      return;
-    }
+    setInput("");
+    // ✅ No need to manually update turn or invalidate queries
+    // SignalR will push the new state to PlayerCard
+  } catch (e) {
+    console.error(e);
+    alert("Failed to create round. Check console for details.");
+  }
+};
 
-    const gameId = localStorage.getItem("GameId") || "";
-
-    try {
-      const payload: CreateRoundRequest = {
-        gameId: parseInt(gameId || "0", 10),
-        roundNumber: 0,
-        points: points,
-        playerUsername: selectedPlayerId,
-      };
-
-      const res = await fetch("https://localhost:5001/api/Round", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) {
-        const text = await res.text();
-        console.error("CreateRound failed:", res.status, text);
-        throw new Error("Failed to create round on server");
-      }
-
-      setInput("");
-
-      // Invalidate teams query so PlayerCard refetches updated scores
-      qc.invalidateQueries({ queryKey: ["teams", gameId] });
-
-      // Advance turn index stored in localStorage and update selected player if possible
-      try {
-        const orderJson = localStorage.getItem("TurnOrder") || "[]";
-        const order = JSON.parse(orderJson) as string[];
-        if (Array.isArray(order) && order.length > 0) {
-          const curIdx =
-            parseInt(localStorage.getItem("TurnIndex") || "0", 10) || 0;
-          const nextIdx = (curIdx + 1) % order.length;
-          localStorage.setItem("TurnIndex", nextIdx.toString());
-          const nextId = order[nextIdx];
-          if (onSelectPlayer) onSelectPlayer(nextId);
-        }
-      } catch (e) {
-        console.error("Failed to advance turn", e);
-      }
-    } catch (e) {
-      console.error(e);
-      alert("Failed to create round. Check console for details.");
-    }
-  };
 
   return (
     <div className="flex flex-col items-center justify-center text-white space-y-4 p-6 bg-gray-900 rounded-xl shadow-lg border-blue-400 border-2 m-5">

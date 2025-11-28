@@ -51,6 +51,7 @@ const X01Config = () => {
     for (let i = 1; i <= numPlayers; i++) {
       const name = formData.get(`player_${i}`) as string;
       listOfPlayers.push(name);
+      
     }
 
     mutation.mutate({
