@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import * as signalR from "@microsoft/signalr";
 
@@ -38,10 +37,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
   const [gameState, setGameState] = useState<ServerGameState | null>(null);
 
   useEffect(() => {
-    if (!gameId) {
-      console.warn("⚠️ No GameId in localStorage");
-      return;
-    }
+    if (!gameId) return;
 
     const connection = new signalR.HubConnectionBuilder()
       .withUrl("https://localhost:5001/api/hubs/match", {
@@ -52,21 +48,18 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
       .configureLogging(signalR.LogLevel.Information)
       .build();
 
-    // ✅ Register event handler for game state updates
     connection.on("GameStateUpdated", (state: ServerGameState) => {
-      console.log("✅ Received GameStateUpdated:", state);
       setGameState(state);
-
-      // ✅ Always sync current player to parent if changed
-      if (state.currentPlayer && state.currentPlayer !== selectedPlayerUsername) {
+      if (
+        state.currentPlayer &&
+        state.currentPlayer !== selectedPlayerUsername
+      ) {
         onSelectPlayer(state.currentPlayer);
         localStorage.setItem("StartingPlayerUsername", state.currentPlayer);
       }
     });
 
-    // ✅ Handle reconnect and rejoin group
     connection.onreconnected(() => {
-      console.log("🔄 SignalR reconnected, rejoining game group...");
       connection.invoke("JoinGame", Number(gameId));
     });
 
@@ -74,13 +67,10 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
       try {
         if (connection.state === signalR.HubConnectionState.Disconnected) {
           await connection.start();
-          console.log("✅ SignalR started. State:", connection.state);
-          console.log("📤 Invoking JoinGame with gameId:", Number(gameId));
           await connection.invoke("JoinGame", Number(gameId));
-          console.log("✅ JoinGame invoked successfully");
         }
-      } catch (err) {
-        console.error("❌ SignalR start/invoke failed:", err);
+      } catch (e) {
+        console.log((e as Error).message);
       }
     };
 
@@ -88,40 +78,51 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
     connectionRef.current = connection;
 
     return () => {
-      console.log("🔌 Stopping SignalR connection");
       connection.stop();
     };
   }, [gameId, selectedPlayerUsername, onSelectPlayer]);
 
-  // Use selectedPlayerUsername first, fallback to server currentPlayer
   const currentPlayer = useMemo(() => {
     return selectedPlayerUsername ?? gameState?.currentPlayer ?? null;
   }, [selectedPlayerUsername, gameState]);
 
-  if (!gameState) return <div className="text-white">Waiting for game state...</div>;
+  if (!gameState)
+    return <div className="text-white">Waiting for game state...</div>;
 
   return (
     <div className="flex gap-6 justify-center w-full">
       {gameState.teams.map((team) => (
-        <div key={team.id} className="p-4 bg-gray-900 border border-gray-700 rounded-2xl shadow-lg">
+        <div
+          key={team.id}
+          className="p-4 bg-gray-900 border border-gray-700 rounded-2xl shadow-lg"
+        >
           <h2 className="text-center text-xl font-bold mb-4 text-white">
             Team {team.teamNumber}
           </h2>
-          <div className={`flex ${team.players.length > 1 ? "flex-row" : "flex-col"} gap-4`}>
+          <div
+            className={`flex ${
+              team.players.length > 1 ? "flex-row" : "flex-col"
+            } gap-4`}
+          >
             {team.players.map((player) => (
               <div
                 key={player.id}
                 onClick={() => onSelectPlayer(player.playerUsername)}
                 className={`cursor-pointer flex flex-col items-center text-center rounded-2xl p-4 m-3 w-48
-                ${player.playerUsername === currentPlayer
-                  ? "bg-blue-700 border-blue-400 scale-105"
-                  : "bg-gray-800 border-gray-600"} border-2 shadow-lg
+                ${
+                  player.playerUsername === currentPlayer
+                    ? "bg-blue-700 border-blue-400 scale-105"
+                    : "bg-gray-800 border-gray-600"
+                } border-2 shadow-lg
                 `}
               >
                 <h1 className="text-lg text-white font-bold">
-                  {player.playerUsername} {player.playerUsername === currentPlayer ? "🟢" : "🔴"}
+                  {player.playerUsername}{" "}
+                  {player.playerUsername === currentPlayer ? "🟢" : "🔴"}
                 </h1>
-                <h2 className="text-3xl font-extrabold mt-3 text-white">{player.individualScore}</h2>
+                <h2 className="text-3xl font-extrabold mt-3 text-white">
+                  {player.individualScore}
+                </h2>
               </div>
             ))}
           </div>
