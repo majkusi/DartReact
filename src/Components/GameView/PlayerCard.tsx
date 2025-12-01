@@ -21,19 +21,36 @@ interface ServerGameState {
   turnOrder: string[];
   currentPlayer: string;
   teams: TeamData[];
+  finished: boolean;
+  winnerUsername: string;
 }
 
 interface PlayerCardProps {
   selectedPlayerUsername?: string;
   onSelectPlayer: (username: string) => void;
+  onGameFinished?: (finished: boolean, winner: string) => void;
 }
 
 const PlayerCard: React.FC<PlayerCardProps> = ({
   selectedPlayerUsername,
   onSelectPlayer,
+  onGameFinished,
 }) => {
   const gameId = localStorage.getItem("GameId") || "";
   const connectionRef = useRef<signalR.HubConnection | null>(null);
+  const onGameFinishedRef =
+    useRef<PlayerCardProps["onGameFinished"]>(onGameFinished);
+  const onSelectPlayerRef =
+    useRef<PlayerCardProps["onSelectPlayer"]>(onSelectPlayer);
+
+  useEffect(() => {
+    onGameFinishedRef.current = onGameFinished;
+  }, [onGameFinished]);
+
+  useEffect(() => {
+    onSelectPlayerRef.current = onSelectPlayer;
+  }, [onSelectPlayer]);
+
   const [gameState, setGameState] = useState<ServerGameState | null>(null);
 
   useEffect(() => {
@@ -47,22 +64,38 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
       .withAutomaticReconnect()
       .configureLogging(signalR.LogLevel.Information)
       .build();
-      connection.keepAliveIntervalInMilliseconds = 5*1000;
-   
 
-    connection.on("GameStateUpdated", (state: ServerGameState) => {
+    connection.keepAliveIntervalInMilliseconds = 5 * 1000;
+    connection.serverTimeoutInMilliseconds = 20 * 1000;
+
+    const handleGameStateUpdated = (state: ServerGameState) => {
       setGameState(state);
+
+      if (state.finished) {
+        if (typeof onGameFinishedRef.current === "function") {
+          onGameFinishedRef.current(true, state.winnerUsername);
+        } else {
+          console.warn("onGameFinished is not provided or not a function");
+        }
+      }
+
       if (
         state.currentPlayer &&
         state.currentPlayer !== selectedPlayerUsername
       ) {
-        onSelectPlayer(state.currentPlayer);
+        onSelectPlayerRef.current?.(state.currentPlayer);
         localStorage.setItem("StartingPlayerUsername", state.currentPlayer);
       }
-    });
+    };
 
-    connection.onreconnected(() => {
-      connection.invoke("JoinGame", Number(gameId));
+    connection.on("GameStateUpdated", handleGameStateUpdated);
+
+    connection.onreconnected(async () => {
+      try {
+        await connection.invoke("JoinGame", Number(gameId));
+      } catch (err) {
+        console.error("Failed to re-join after reconnect:", err);
+      }
     });
 
     const start = async () => {
@@ -80,9 +113,10 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
     connectionRef.current = connection;
 
     return () => {
+      connection.off("GameStateUpdated", handleGameStateUpdated);
       connection.stop();
     };
-  }, [gameId, selectedPlayerUsername, onSelectPlayer]);
+  }, [gameId, selectedPlayerUsername]);
 
   const currentPlayer = useMemo(() => {
     return selectedPlayerUsername ?? gameState?.currentPlayer ?? null;
@@ -109,7 +143,9 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
             {team.players.map((player) => (
               <div
                 key={player.id}
-                onClick={() => onSelectPlayer(player.playerUsername)}
+                onClick={() =>
+                  onSelectPlayerRef.current?.(player.playerUsername)
+                }
                 className={`cursor-pointer flex flex-col items-center text-center rounded-2xl p-4 m-3 w-48
                 ${
                   player.playerUsername === currentPlayer
