@@ -1,7 +1,7 @@
 import { useState } from "react";
-import PlayerCard from "../Components/GameView/PlayerCard";
-import ScoreBoard from "../Components/GameView/ScoreBoard";
-import Popup from "../Components/GameView/Popup";
+import Popup from "../components/GameView/Popup";
+import PlayerCard from "../components/GameView/PlayerCard";
+import ScoreBoard from "../components/GameView/ScoreBoard";
 
 const GameViewPage = () => {
   const [selectedPlayerUsername, setSelectedPlayerUsername] = useState<
