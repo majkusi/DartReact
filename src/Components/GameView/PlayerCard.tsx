@@ -47,6 +47,8 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
       .withAutomaticReconnect()
       .configureLogging(signalR.LogLevel.Information)
       .build();
+      connection.keepAliveIntervalInMilliseconds = 5*1000;
+   
 
     connection.on("GameStateUpdated", (state: ServerGameState) => {
       setGameState(state);
