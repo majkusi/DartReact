@@ -2,9 +2,7 @@ import { useState } from "react";
 
 interface ScoreBoardProps {
   selectedPlayerUsername?: string;
-  onSelectPlayer?: (username: string) => void;
 }
-
 interface CreateRoundRequest {
   gameId: number;
   roundNumber: number;
@@ -17,87 +15,79 @@ const ScoreBoard: React.FC<ScoreBoardProps> = ({ selectedPlayerUsername }) => {
 
   const handleButtonClick = (value: string) => {
     const newValue = parseInt(input + value, 10);
-    if (newValue <= 180) {
-      setInput(input + value);
-    }
+    if (newValue <= 180) setInput(input + value);
   };
 
   const handleRevert = () => setInput("");
-
   const handleNext = async () => {
     if (!selectedPlayerUsername) {
       alert("Please select a player first");
       return;
     }
-
     const points = parseInt(input, 10);
     if (!points || points <= 0) {
       alert("Enter a valid point value");
       return;
     }
-
     const gameId = localStorage.getItem("GameId") || "";
-
     try {
       const payload: CreateRoundRequest = {
-        gameId: parseInt(gameId || "0", 10),
+        gameId: parseInt(gameId || "0"),
         roundNumber: 0,
-        points: points,
+        points,
         playerUsername: selectedPlayerUsername,
       };
-
       const res = await fetch("https://localhost:5001/api/Round", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-
       if (!res.ok) {
         const text = await res.text();
-        console.error("CreateRound failed:", res.status, text);
-        throw new Error("Failed to create round on server");
+        console.error(res.status, text);
+        throw new Error("Failed");
       }
-
       setInput("");
     } catch (e) {
       console.error(e);
-      alert("Failed to create round. Check console for details.");
+      alert("Failed to create round");
     }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center text-white space-y-4 p-6 bg-gray-900 rounded-xl shadow-lg border-blue-400 border-2 m-5">
-      <div>
+    <div className="flex flex-row items-start justify-center text-cyan-400 p-6 bg-black rounded-3xl shadow-[0_0_25px_cyan] border border-green-400 gap-6 w-max">
+      {/* Input + Actions */}
+      <div className="flex flex-col items-center gap-4">
         <h4 className="text-lg font-semibold">
-          Input: <span className="text-blue-400">{input || "—"}</span>
+          Input: <span className="text-green-400">{input || "—"}</span>
         </h4>
+        <div className="flex gap-3">
+          <button
+            onClick={handleNext}
+            className="px-6 py-2 bg-green-400 hover:bg-cyan-400 text-black rounded-xl shadow-[0_0_15px_green] font-semibold transition transform hover:scale-105"
+          >
+            Next
+          </button>
+          <button
+            onClick={handleRevert}
+            className="px-6 py-2 bg-cyan-400 hover:bg-green-400 text-black rounded-xl shadow-[0_0_15px_cyan] font-semibold transition transform hover:scale-105"
+          >
+            Revert
+          </button>
+        </div>
       </div>
 
-      <div className="flex flex-wrap justify-center gap-2">
-        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map((number) => (
+      {/* Number Pad */}
+      <div className="grid grid-cols-5 gap-3">
+        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map((n) => (
           <button
-            key={number}
-            onClick={() => handleButtonClick(number.toString())}
-            className="w-10 h-10 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-md shadow-md transition"
+            key={n}
+            onClick={() => handleButtonClick(n.toString())}
+            className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-green-400 hover:from-green-400 hover:to-cyan-500 text-black font-bold rounded-xl shadow-[0_0_10px_cyan] transition-transform transform hover:scale-110"
           >
-            {number}
+            {n}
           </button>
         ))}
-      </div>
-
-      <div className="flex gap-3">
-        <button
-          onClick={handleNext}
-          className="px-5 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md shadow-md font-semibold transition"
-        >
-          Next
-        </button>
-        <button
-          onClick={handleRevert}
-          className="px-5 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md shadow-md font-semibold transition"
-        >
-          Revert
-        </button>
       </div>
     </div>
   );

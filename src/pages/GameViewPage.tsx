@@ -4,9 +4,8 @@ import PlayerCard from "../components/GameView/PlayerCard";
 import ScoreBoard from "../components/GameView/ScoreBoard";
 
 const GameViewPage = () => {
-  const [selectedPlayerUsername, setSelectedPlayerUsername] = useState<
-    string | undefined
-  >(undefined);
+  const [selectedPlayerUsername, setSelectedPlayerUsername] =
+    useState<string>();
   const [showPopup, setShowPopup] = useState(false);
   const [winnerUsername, setWinnerUsername] = useState<string | null>(null);
 
@@ -25,16 +24,13 @@ const GameViewPage = () => {
         onClose={() => setShowPopup(false)}
         redirectTo="/"
       />
-      <div className="flex flex-col justify-center items-center bg-gray-800 h-svh">
+      <div className="flex flex-col justify-center items-center bg-black min-h-screen p-6 gap-8">
         <PlayerCard
           selectedPlayerUsername={selectedPlayerUsername}
           onSelectPlayer={setSelectedPlayerUsername}
           onGameFinished={handleGameStateUpdate}
         />
-        <ScoreBoard
-          selectedPlayerUsername={selectedPlayerUsername}
-          onSelectPlayer={setSelectedPlayerUsername}
-        />
+        <ScoreBoard selectedPlayerUsername={selectedPlayerUsername} />
       </div>
     </>
   );

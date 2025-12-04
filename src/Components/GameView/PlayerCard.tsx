@@ -46,7 +46,6 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
   useEffect(() => {
     onGameFinishedRef.current = onGameFinished;
   }, [onGameFinished]);
-
   useEffect(() => {
     onSelectPlayerRef.current = onSelectPlayer;
   }, [onSelectPlayer]);
@@ -70,15 +69,8 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
 
     const handleGameStateUpdated = (state: ServerGameState) => {
       setGameState(state);
-
-      if (state.finished) {
-        if (typeof onGameFinishedRef.current === "function") {
-          onGameFinishedRef.current(true, state.winnerUsername);
-        } else {
-          console.warn("onGameFinished is not provided or not a function");
-        }
-      }
-
+      if (state.finished)
+        onGameFinishedRef.current?.(true, state.winnerUsername);
       if (
         state.currentPlayer &&
         state.currentPlayer !== selectedPlayerUsername
@@ -89,12 +81,11 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
     };
 
     connection.on("GameStateUpdated", handleGameStateUpdated);
-
     connection.onreconnected(async () => {
       try {
         await connection.invoke("JoinGame", Number(gameId));
       } catch (err) {
-        console.error("Failed to re-join after reconnect:", err);
+        console.error(err);
       }
     });
 
@@ -118,47 +109,55 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
     };
   }, [gameId, selectedPlayerUsername]);
 
-  const currentPlayer = useMemo(() => {
-    return selectedPlayerUsername ?? gameState?.currentPlayer ?? null;
-  }, [selectedPlayerUsername, gameState]);
+  const currentPlayer = useMemo(
+    () => selectedPlayerUsername ?? gameState?.currentPlayer ?? null,
+    [selectedPlayerUsername, gameState]
+  );
 
   if (!gameState)
-    return <div className="text-white">Waiting for game state...</div>;
+    return (
+      <div className="text-cyan-400 text-lg font-semibold animate-pulse">
+        Waiting for game state...
+      </div>
+    );
 
   return (
-    <div className="flex gap-6 justify-center w-full">
+    <div className="flex flex-wrap gap-8 justify-center w-full">
       {gameState.teams.map((team) => (
         <div
           key={team.id}
-          className="p-4 bg-gray-900 border border-gray-700 rounded-2xl shadow-lg"
+          className="p-6 bg-black border border-cyan-600 rounded-3xl shadow-[0_0_20px_cyan] w-96"
         >
-          <h2 className="text-center text-xl font-bold mb-4 text-white">
+          <h2 className="text-center text-2xl font-bold mb-6 text-cyan-400 tracking-wide">
             Team {team.teamNumber}
           </h2>
-          <div
-            className={`flex ${
-              team.players.length > 1 ? "flex-row" : "flex-col"
-            } gap-4`}
-          >
+          <div className={`flex flex-row gap-2 justify-center`}>
             {team.players.map((player) => (
               <div
-                key={player.id}
-                onClick={() =>
-                  onSelectPlayerRef.current?.(player.playerUsername)
-                }
-                className={`cursor-pointer flex flex-col items-center text-center rounded-2xl p-4 m-3 w-48
-                ${
-                  player.playerUsername === currentPlayer
-                    ? "bg-blue-700 border-blue-400 scale-105"
-                    : "bg-gray-800 border-gray-600"
-                } border-2 shadow-lg
-                `}
+                className={`cursor-default flex flex-col items-center justify-center text-center rounded-2xl p-4 w-36 transition-transform duration-300
+                      ${
+                        player.playerUsername === currentPlayer
+                          ? "bg-gradient-to-br from-cyan-500 to-green-400 border-green-400 scale-105 shadow-[0_0_15px_cyan,0_0_25px_green]"
+                          : "bg-gray-900 border-cyan-600"
+                      } border-2`}
               >
-                <h1 className="text-lg text-white font-bold">
+                <h1
+                  className={`text-sm md:text-base font-semibold ${
+                    player.playerUsername === currentPlayer
+                      ? "text-cyan-400"
+                      : "text-white" // inactive players name white
+                  }`}
+                >
                   {player.playerUsername}{" "}
                   {player.playerUsername === currentPlayer ? "🟢" : "🔴"}
                 </h1>
-                <h2 className="text-3xl font-extrabold mt-3 text-white">
+                <h2
+                  className={`text-2xl md:text-3xl font-extrabold mt-2 ${
+                    player.playerUsername === currentPlayer
+                      ? "text-green-400" // active score green
+                      : "text-white" // inactive score white
+                  }`}
+                >
                   {player.individualScore}
                 </h2>
               </div>
