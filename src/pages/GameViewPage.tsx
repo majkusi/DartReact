@@ -23,6 +23,7 @@ const GameViewPage = () => {
         isOpen={showPopup}
         message={`Game Over! Winner: ${winnerUsername}`}
         onClose={() => setShowPopup(false)}
+        redirectTo="/"
       />
       <div className="flex flex-col justify-center items-center bg-gray-800 h-svh">
         <PlayerCard

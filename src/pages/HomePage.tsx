@@ -1,5 +1,5 @@
 import feedExample from "../../feedExample.json";
-import FeedComponent from "../Components/FeedComponent";
+import FeedComponent from "../components/FeedComponent";
 
 const HomePage = () => {
   return (
