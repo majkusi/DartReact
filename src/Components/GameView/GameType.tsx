@@ -6,9 +6,13 @@ interface PropsTypes {
 
 const GameType = ({ gameTypeName }: PropsTypes) => {
   return (
-    <div>
+    <div className="flex justify-center">
       <Link to="/createGame/X01">
-        <button className="rounded-xl shadow-xl ml-auto mr-auto bg-gray-900 w-60 h-24 m-2 text-white border-2 border-blue-400">
+        <button
+          className="w-60 h-24 m-2 rounded-full bg-black text-white font-semibold text-lg uppercase tracking-wider 
+                           border-2 border-cyan-500 shadow-[0_0_12px_cyan,0_0_24px_skyblue] 
+                           transition-transform duration-300 hover:scale-105 hover:shadow-[0_0_20px_cyan,0_0_40px_skyblue]"
+        >
           {gameTypeName}
         </button>
       </Link>

@@ -17,21 +17,27 @@ const Popup: React.FC<PopupProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full text-center">
-        <p className="text-lg font-medium text-gray-800 mb-4">{message}</p>
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80 z-50">
+      <div className="bg-black border-2 border-cyan-500 rounded-3xl shadow-[0_0_20px_cyan,0_0_40px_skyblue] p-6 max-w-sm w-full text-center">
+        <p className="text-white text-lg font-semibold mb-6 tracking-wide">
+          {message}
+        </p>
         {redirectTo ? (
           <Link
             to={redirectTo}
             onClick={onClose}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-200 inline-block"
+            className="inline-block px-6 py-3 rounded-full bg-black text-white font-bold text-lg
+                       border-2 border-cyan-500 shadow-[0_0_15px_cyan,0_0_30px_skyblue] transition-transform duration-300
+                       hover:scale-105 hover:shadow-[0_0_25px_cyan,0_0_50px_skyblue]"
           >
             OK
           </Link>
         ) : (
           <button
             onClick={onClose}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-200"
+            className="px-6 py-3 rounded-full bg-black text-white font-bold text-lg
+                       border-2 border-cyan-500 shadow-[0_0_15px_cyan,0_0_30px_skyblue] transition-transform duration-300
+                       hover:scale-105 hover:shadow-[0_0_25px_cyan,0_0_50px_skyblue]"
           >
             OK
           </button>

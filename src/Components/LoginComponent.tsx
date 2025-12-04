@@ -48,33 +48,41 @@ const LoginForm: React.FC = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen text-white">
+    <div className="flex items-center justify-center min-h-screen bg-black text-white px-4">
       <form
         onSubmit={handleSubmit}
-        className="flex flex-col items-center justify-center space-y-4 bg-gray-800 p-8 rounded-2xl shadow-2xl w-96"
+        className="flex flex-col items-center w-full max-w-md space-y-6 bg-black border-2 border-cyan-500 
+                   rounded-3xl p-8 shadow-[0_0_20px_cyan,0_0_40px_skyblue] transition-transform duration-300 
+                   hover:scale-105"
       >
-        <h1 className="text-2xl font-bold mb-2">Login</h1>
+        <h1 className="text-3xl font-extrabold text-white mb-2 tracking-wider">
+          Login
+        </h1>
 
         {/* Email */}
         <div className="flex flex-col w-full">
-          <label className="mb-1">Email</label>
+          <label className="mb-1 text-white font-semibold">Email</label>
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="bg-gray-500 border-2 border-white p-2 rounded-md text-white"
+            className="bg-black border-2 border-cyan-500 p-3 rounded-xl text-white placeholder-gray-400 
+                       focus:outline-none focus:ring-2 focus:ring-cyan-400 transition"
+            placeholder="Enter your email"
             required
           />
         </div>
 
         {/* Password */}
         <div className="flex flex-col w-full">
-          <label className="mb-1">Password</label>
+          <label className="mb-1 text-white font-semibold">Password</label>
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="bg-gray-500 border-2 border-white p-2 rounded-md text-white"
+            className="bg-black border-2 border-cyan-500 p-3 rounded-xl text-white placeholder-gray-400 
+                       focus:outline-none focus:ring-2 focus:ring-cyan-400 transition"
+            placeholder="Enter your password"
             required
           />
         </div>
@@ -83,17 +91,23 @@ const LoginForm: React.FC = () => {
         <button
           type="submit"
           disabled={mutation.isPending}
-          className="rounded-xl shadow-xl bg-gray-900 w-60 h-14 text-white border-2 border-blue-400 hover:bg-blue-600 transition disabled:opacity-50"
+          className="w-full h-14 rounded-full bg-black text-white font-bold text-lg border-2 border-cyan-500
+                     shadow-[0_0_15px_cyan,0_0_30px_skyblue] transition-transform duration-300 
+                     hover:scale-105 hover:shadow-[0_0_25px_cyan,0_0_50px_skyblue] disabled:opacity-50"
         >
           {mutation.isPending ? "Logging in..." : "Login"}
         </button>
 
+        {/* Error Message */}
         {mutation.isError && (
           <p className="text-red-400 text-sm">{mutation.error.message}</p>
         )}
 
-        <Link to="/register" className="m-4 text-white">
-          Don't have an account? Register !
+        <Link
+          to="/register"
+          className="mt-4 text-cyan-400 hover:text-cyan-200 transition"
+        >
+          Don't have an account? Register!
         </Link>
       </form>
     </div>

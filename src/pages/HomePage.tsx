@@ -3,7 +3,7 @@ import FeedComponent from "../components/FeedComponent";
 
 const HomePage = () => {
   return (
-    <div className="flex flex-col justify-center items-center bg-gray-800">
+    <div className="flex flex-col justify-center items-center bg-black">
       {feedExample.map((feed) => (
         <FeedComponent
           key={feed.id}

@@ -1,8 +1,8 @@
-import X01Config from "../Components/GameView/X01Config";
+import X01Config from "../components/GameView/X01Config";
 
 const CreateX01GamePage = () => {
   return (
-    <div className="flex flex-col justify-center items-center bg-gray-800 h-svh">
+    <div className="flex flex-col justify-center items-center bg-black h-svh">
       <X01Config />
     </div>
   );
