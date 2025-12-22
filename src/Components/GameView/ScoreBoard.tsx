@@ -81,7 +81,7 @@ const ScoreBoard: React.FC<ScoreBoardProps> = ({ selectedPlayerUsername }) => {
           <button
             key={n}
             onClick={() => handleButtonClick(n.toString())}
-            className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-green-400 hover:from-green-400 hover:to-cyan-500 text-black font-bold rounded-xl shadow-[0_0_10px_cyan] transition-transform transform hover:scale-110"
+            className="w-16 h-16 bg-linear-to-br from-cyan-500 to-green-400 hover:from-green-400 hover:to-cyan-500 text-black font-bold rounded-xl shadow-[0_0_10px_cyan] transition-transform transform hover:scale-110"
           >
             {n}
           </button>
