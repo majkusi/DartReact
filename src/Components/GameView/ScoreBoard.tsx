@@ -56,7 +56,6 @@ const ScoreBoard: React.FC<ScoreBoardProps> = ({ selectedPlayerUsername }) => {
 
   return (
     <div className="flex flex-row items-start justify-center text-cyan-400 p-6 bg-black rounded-3xl shadow-[0_0_25px_cyan] border border-green-400 gap-6 w-max">
-      {/* Input + Actions */}
       <div className="flex flex-col items-center gap-4">
         <h4 className="text-lg font-semibold">
           Input: <span className="text-green-400">{input || "—"}</span>
@@ -77,7 +76,6 @@ const ScoreBoard: React.FC<ScoreBoardProps> = ({ selectedPlayerUsername }) => {
         </div>
       </div>
 
-      {/* Number Pad */}
       <div className="grid grid-cols-5 gap-3">
         {[1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map((n) => (
           <button
