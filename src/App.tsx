@@ -4,7 +4,7 @@ import {
   createRoutesFromElements,
   RouterProvider,
 } from "react-router-dom";
-import NotFoundPage from "./components/NotFoundPage";
+import NotFoundPage from "./Components/NotFoundPage";
 import MainLayout from "./layouts/MainLayout";
 import HomePage from "./pages/HomePage";
 import CreateGamePage from "./pages/CreateGamePage";

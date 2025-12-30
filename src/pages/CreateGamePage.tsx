@@ -1,5 +1,5 @@
 import gameTypes from "../../gameTypes.json";
-import GameType from "../components/GameView/GameType";
+import GameType from "../Components/GameView/GameType";
 const CreateGamePage = () => {
   return (
     <div className="flex flex-col justify-center items-center bg-black h-svh">

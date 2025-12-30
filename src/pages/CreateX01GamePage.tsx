@@ -1,4 +1,4 @@
-import X01Config from "../components/GameView/X01Config";
+import X01Config from "../Components/GameView/X01Config";
 
 const CreateX01GamePage = () => {
   return (
