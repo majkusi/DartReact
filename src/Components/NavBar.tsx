@@ -5,7 +5,7 @@ function NavBar() {
     <nav className="bg-black border-b border-cyan-600 shadow-[0_0_20px_cyan]">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
-          {/* Logo Section */}
+          {/* Logo Section  */}
           <Link
             to="/"
             className="flex items-center space-x-2 text-white hover:scale-105 transition-transform duration-200"

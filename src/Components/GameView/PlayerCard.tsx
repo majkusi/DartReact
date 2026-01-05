@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import * as signalR from "@microsoft/signalr";
-
+import { backendAddress } from "../../Constants";
 interface PlayerData {
   id: number;
   teamId: number;
@@ -56,7 +56,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({
     if (!gameId) return;
 
     const connection = new signalR.HubConnectionBuilder()
-      .withUrl("https://localhost:5001/api/hubs/match", {
+      .withUrl(backendAddress + "/api/hubs/match", {
         transport: signalR.HttpTransportType.WebSockets,
         withCredentials: true,
       })
