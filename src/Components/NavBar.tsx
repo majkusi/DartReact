@@ -10,7 +10,7 @@ function NavBar() {
             to="/"
             className="flex items-center space-x-2 text-white hover:scale-105 transition-transform duration-200"
           >
-            <span className="text-2xl font-extrabold tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-green-400">
+            <span className="text-2xl font-extrabold tracking-wider bg-clip-text text-transparent bg-linear-to-r from-cyan-400 to-green-400">
               🎯 Darts Hub
             </span>
           </Link>
@@ -27,7 +27,7 @@ function NavBar() {
                 key={link.to}
                 to={link.to}
                 className="relative px-4 py-2 font-medium rounded-lg text-white border-2 border-cyan-600 transition-all duration-200
-                           before:absolute before:inset-0 before:bg-gradient-to-r before:from-cyan-500 before:to-green-400 before:rounded-lg before:opacity-0
+                           before:absolute before:inset-0 before:bg-linear-to-r before:from-cyan-500 before:to-green-400 before:rounded-lg before:opacity-0
                            hover:before:opacity-20 hover:scale-105 z-10"
               >
                 {link.label}
