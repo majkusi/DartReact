@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { useNavigate } from "react-router";
-
+import { backendAddress } from "../../Constants";
 interface MatchResponse {
   gameId: string;
 }
@@ -14,7 +14,7 @@ interface MatchRequest {
 }
 
 const createMatch = async (request: MatchRequest): Promise<MatchResponse> => {
-  const response = await fetch("https://localhost:5001/api/Match", {
+  const response = await fetch(backendAddress + "/api/Match", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(request),
