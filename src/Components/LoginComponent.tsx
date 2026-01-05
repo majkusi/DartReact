@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Link } from "react-router";
-
+import { backendAddress } from "../Constants";
 interface LoginResponse {
   token: string;
 }
@@ -14,7 +14,7 @@ interface LoginCredentials {
 const loginUser = async (
   credentials: LoginCredentials
 ): Promise<LoginResponse> => {
-  const response = await fetch("https://localhost:5001/api/Users/Login", {
+  const response = await fetch(backendAddress + "/api/Users/Login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(credentials),
