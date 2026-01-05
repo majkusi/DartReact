@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { backendAddress } from "../../Constants";
 
 interface ScoreBoardProps {
   selectedPlayerUsername?: string;
@@ -37,7 +38,7 @@ const ScoreBoard: React.FC<ScoreBoardProps> = ({ selectedPlayerUsername }) => {
         points,
         playerUsername: selectedPlayerUsername,
       };
-      const res = await fetch("https://localhost:5001/api/Round", {
+      const res = await fetch(backendAddress + "/api/Round", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
