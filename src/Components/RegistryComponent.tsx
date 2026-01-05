@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-
+import { backendAddress } from "../Constants";
 interface RegistryResponse {
   statusCode: string;
 }
@@ -12,7 +12,7 @@ interface RegistryCredentials {
 }
 
 const registerUser = async (credentials: RegistryCredentials) => {
-  const response = await fetch("https://localhost:5001/api/Users/Register", {
+  const response = await fetch(backendAddress + "/api/Users/Register", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(credentials),
